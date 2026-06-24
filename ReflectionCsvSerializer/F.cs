@@ -2,7 +2,11 @@
 {
     public class F
     {
-        public int i1, i2, i3, i4, i5;
-        public static F Get() => new F() { i1 = 1, i2 = 2, i3 = 3, i4 = 4, i5 = 5 };
+        public int I1 { get; set; }
+        public int I2 { get; set; }
+        public int I3 { get; set; }
+        public int I4 { get; set; }
+        public int I5 { get; set; }
+        public static F Get() => new() { I1 = 1, I2 = 2, I3 = 3, I4 = 4, I5 = 5 };
     }
 }

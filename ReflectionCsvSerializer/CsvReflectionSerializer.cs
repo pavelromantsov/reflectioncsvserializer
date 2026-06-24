@@ -5,26 +5,26 @@ namespace ReflectionCsvSerializer
     public static class CsvReflectionSerializer
     {
         // Dictionary для хранения информации о полях
-        private static readonly Dictionary<Type, FieldInfo[]> _fieldCache = new();
+        private static readonly Dictionary<Type, PropertyInfo[]> _propertyCache = [];
 
-        private static FieldInfo[] GetCachedFields<T>()
+        private static PropertyInfo[] GetCachedProperties<T>()
         {
             var type = typeof(T);
-            if (!_fieldCache.TryGetValue(type, out var fields))
+            if (!_propertyCache.TryGetValue(type, out var properties))
             {
                 // Сортируем, чтобы порядок полей при сериализации и десериализации совпадал
-                fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance)
-                             .OrderBy(f => f.Name)
+                properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                             .OrderBy(p => p.Name)
                              .ToArray();
-                _fieldCache[type] = fields;
+                _propertyCache[type] = properties;
             }
-            return fields;
+            return properties;
         }
         public static string Serialize<T>(T obj)
         {
             if (obj == null) return string.Empty;
 
-            var fields = GetCachedFields<T>();
+            var fields = GetCachedProperties<T>();
             var values = new string[fields.Length];
 
             for (int i = 0; i < fields.Length; i++)
@@ -40,12 +40,12 @@ namespace ReflectionCsvSerializer
             if (string.IsNullOrEmpty(csv)) return new T();
 
             var obj = new T();
-            var fields = GetCachedFields<T>();
+            var fields = GetCachedProperties<T>();
             var values = csv.Split(',');
 
             for (int i = 0; i < fields.Length && i < values.Length; i++)
             {
-                var fieldType = fields[i].FieldType;        
+                var fieldType = fields[i].PropertyType;
                 var targetType = Nullable.GetUnderlyingType(fieldType) ?? fieldType;
 
                 if (!string.IsNullOrEmpty(values[i]))
@@ -56,7 +56,7 @@ namespace ReflectionCsvSerializer
                         fields[i].SetValue(obj, safeValue);
                     }
                     catch (InvalidCastException)
-                    {                    
+                    {
                     }
                 }
             }
